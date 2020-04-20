@@ -1,0 +1,34 @@
+*-debug.log
+*-error.log
+/.nyc_output
+/dist
+/lib
+/package-lock.json
+/tmp
+node_modules
+
+# IDE
+.idea/
+IlluminatedCloud
+.project
+.classpath
+.c9/
+*.launch
+.settings/
+*.code-workspace
+*.sublime-workspace
+*.iml
+*.ipr
+*.iws
+
+# IDE - VSCode
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+.history/*
+
+# macOS System Files
+.DS_Store
+Thumbs.db
