@@ -19,7 +19,7 @@ Messages.importMessagesDirectory(__dirname);
 // or any library that is using the messages framework can also be loaded this way.
 const messages = Messages.loadMessages('sfdx-ngx-plugin', 'ngx');
 
-export default class Ngx extends SfdxCommand {
+export default class NgxInit extends SfdxCommand {
   public static description = messages.getMessage('initCommandDescription');
 
   public static examples = [
@@ -134,7 +134,7 @@ export default class Ngx extends SfdxCommand {
     defaultValue: string,
     rootPath: string,
     promptCreate?: boolean
-  ) {
+  ): Promise<string> {
     const dirPath = await this.ux.prompt(message, {
       default: defaultValue
     });
