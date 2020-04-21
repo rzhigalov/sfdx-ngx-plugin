@@ -32,6 +32,20 @@ export default class Ngx extends SfdxCommand {
 
     this.ux.styledHeader('Plugin Setup');
 
+    pluginSettings.packageManager = await this.ux.prompt(
+      messages.getMessage('packageManagerFlagDescription'),
+      {
+        default: pluginSettings.packageManager
+      }
+    );
+
+    pluginSettings.buildScriptName = await this.ux.prompt(
+      messages.getMessage('buildcmdFlagDescription'),
+      {
+        default: pluginSettings.buildScriptName
+      }
+    );
+
     // Save new plugin configuration
     projectConfig.set(`plugins.${PLUGIN_NAMESPACE}`, (pluginSettings as unknown) as JsonMap);
     await projectConfig.write(projectConfig.getContents());

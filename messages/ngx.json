@@ -1,3 +1,5 @@
 {
-  "initCommandDescription": "Initializes config and files for plugin"
+  "initCommandDescription": "Initializes config and files for plugin",
+  "packageManagerFlagDescription": "Used package manager (npm, yarn, pnpm)",
+  "buildcmdFlagDescription": "Angular build command"
 }
