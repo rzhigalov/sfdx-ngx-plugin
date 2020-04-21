@@ -186,6 +186,8 @@ export default class NgxBuild extends SfdxCommand {
     vfPage = vfTransform.sanitizeTags(vfPage);
     this.ux.setSpinnerStatus('Setting SFDC resouces url');
     vfPage = vfTransform.updateDeployUrl(vfPage, staticResourceUrl);
+    this.ux.setSpinnerStatus('Setting ES5 fallback script initializer');
+    vfPage = vfTransform.createLegacyScriptsInitializer(vfPage);
 
     return fs.writeFile(vfPagePath, vfPage);
   }

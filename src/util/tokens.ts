@@ -30,3 +30,15 @@ export const VF_PAGE_SCRIPTS = `
     var ${SFDC_RUNTIME_RESOURCE_TOKEN} = "${SFDC_DEPLOY_TOKEN}";
   </script>
 `;
+export const VF_PAGE_DEFER_INIT_SCRIPT = (nomoduleScripts: string[]) => `
+<script>
+  var nms = ${JSON.stringify(nomoduleScripts)};
+  nms.forEach(function (s, si) {
+  var st = document.createElement('script');
+  st.setAttribute('src', s.scriptSrc);
+  if (s.nomodule) { st.setAttribute('nomodule', ''); }
+  if (s.defer){ st.setAttribute('defer', ''); }
+  document.body.appendChild(st);
+  });
+</script>
+`;

@@ -1,12 +1,36 @@
 // tslint:disable-next-line no-var-requires
 const replaceInFiles = require('replace-in-file');
+import { ReplaceResult } from 'replace-in-file';
 
 import {
   SFDC_DEPLOY_TOKEN,
   SFDC_RUNTIME_RESOURCE_TOKEN,
+  VF_PAGE_DEFER_INIT_SCRIPT,
   VF_PAGE_SCRIPTS,
   VF_TEMPLATE_CONTENT_TOKEN
 } from './tokens';
+
+export const createLegacyScriptsInitializer = (html: string): string => {
+  // Collect es5 src references
+  const nomoduleScripts = [];
+  const nomoduleRegex = /<script[^>]*src="([^"]*?)"[^>]*(nomodule|defer)[^>]*><\/script>/g;
+  let match = nomoduleRegex.exec(html);
+  while (match !== null) {
+    nomoduleScripts.push({
+      scriptSrc: match[1],
+      defer: match[0].includes('defer'),
+      nomodule: match[0].includes('nomodule')
+    });
+    match = nomoduleRegex.exec(html);
+  }
+  // Remove es5 bundles as SFDC does not support boolean `nomodule` arrtibute
+  html = html.replace(nomoduleRegex, '');
+
+  const bodyIdx = html.indexOf('</body>');
+  return `${html.slice(0, bodyIdx)}${VF_PAGE_DEFER_INIT_SCRIPT(nomoduleScripts)}${html.slice(
+    bodyIdx
+  )}`;
+};
 
 export const sanitizeTags = (html: string): string => {
   // Convert non-closed tags into self-closing tags
@@ -22,20 +46,20 @@ export const sanitizeTags = (html: string): string => {
   return html;
 };
 
-export const wrapIntoVfPage = (html: string, template: string): string => {
-  html = html.slice('<!doctype html>'.length);
-  return template.replace(VF_TEMPLATE_CONTENT_TOKEN, html);
-};
-
 export const updateDeployUrl = (html: string, staticResourceUrl: string): string => {
   html = html.split('</head>').join(VF_PAGE_SCRIPTS + '\n</head>');
   return html.split(SFDC_DEPLOY_TOKEN).join(staticResourceUrl);
 };
 
-export const updateLoadedScriptsPath = async (scriptDirPath: string): Promise<any> => {
+export const updateLoadedScriptsPath = async (scriptDirPath: string): Promise<ReplaceResult[]> => {
   return replaceInFiles({
     files: `${scriptDirPath}/**/*.js`,
     from: `"${SFDC_DEPLOY_TOKEN}"`,
     to: SFDC_RUNTIME_RESOURCE_TOKEN
   });
+};
+
+export const wrapIntoVfPage = (html: string, template: string): string => {
+  html = html.slice('<!doctype html>'.length);
+  return template.replace(VF_TEMPLATE_CONTENT_TOKEN, html);
 };
