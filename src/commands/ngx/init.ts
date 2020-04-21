@@ -66,18 +66,13 @@ export default class Ngx extends SfdxCommand {
       }
     });
 
-    pluginSettings.ngPath = await retry(async () => {
-      const ngPath = await this.ux.prompt(messages.getMessage('ngPathFlagDescription'), {
-        default: pluginSettings.ngPath
-      });
-
-      const ngRootPath = path.join(projectPath, ngPath);
-      if (fs.existsSync(ngRootPath)) {
-        return ngPath;
-      } else {
-        this.ux.error(messages.getMessage('errorUnresolvableDir', [`${ngPath}`]));
-      }
-    });
+    pluginSettings.ngPath = await retry(() =>
+      this.setAndValidateDir(
+        messages.getMessage('ngPathFlagDescription'),
+        pluginSettings.ngPath,
+        projectPath
+      )
+    );
 
     const ngRootPath = path.join(projectPath, pluginSettings.ngPath);
     const suggestNgProject =
@@ -88,6 +83,15 @@ export default class Ngx extends SfdxCommand {
       {
         default: suggestNgProject
       }
+    );
+
+    pluginSettings.sfdcPath = await retry(() =>
+      this.setAndValidateDir(
+        messages.getMessage('sfdcPathFlagDescription'),
+        pluginSettings.sfdcPath,
+        projectPath,
+        true
+      )
     );
 
     // Save new plugin configuration
@@ -103,4 +107,28 @@ export default class Ngx extends SfdxCommand {
       message: statusMessage
     };
   }
+
+  private async setAndValidateDir(
+    message: string,
+    defaultValue: string,
+    rootPath: string,
+    promptCreate?: boolean
+  ) {
+    const dirPath = await this.ux.prompt(message, {
+      default: defaultValue
+    });
+
+    const dirRootPath = path.join(rootPath, dirPath);
+    if (fs.existsSync(dirRootPath)) {
+      return dirPath;
+    } else {
+      this.ux.error(messages.getMessage('errorUnresolvableDir', [`${dirPath}`]));
+
+      if (promptCreate && (await this.ux.confirm(messages.getMessage('promptCreateDir')))) {
+        await fs.ensureDir(dirRootPath);
+        return dirPath;
+      }
+    }
+  }
+
 }
