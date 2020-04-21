@@ -8,7 +8,11 @@ import * as path from 'path';
 
 import { NgxSettings } from '../../types/settings';
 import { mergeConfigDefaults } from '../../util/config';
-import { SFDC_DEPLOY_TOKEN, SFDC_PAGE_META_CONTENT, SFDC_RESOURCE_META_CONTENT } from '../../util/tokens';
+import {
+  SFDC_DEPLOY_TOKEN,
+  SFDC_PAGE_META_CONTENT,
+  SFDC_RESOURCE_META_CONTENT
+} from '../../util/tokens';
 
 // Initialize Messages with the current plugin directory
 Messages.importMessagesDirectory(__dirname);
@@ -80,6 +84,14 @@ export default class NgxBuild extends SfdxCommand {
     }
 
     await this.buildSfdcSources(projectPath, pluginSettings);
+
+    const vfPagePath = path.join(
+      projectPath,
+      pluginSettings.sfdcPath,
+      'pages',
+      `${pluginSettings.sfdcVfPageName}.page`
+    );
+    await this.transformVfPage(vfPagePath);
 
     // Return an object to be displayed with --json
     const statusMessage = 'Angular project built and packed for SFDC deployment!';
@@ -155,6 +167,11 @@ export default class NgxBuild extends SfdxCommand {
     );
 
     this.ux.stopSpinner('Done');
+  }
+
+  private async transformVfPage(vfPagePath: string) {
+    const html = await fs.readFile(vfPagePath, 'utf8');
+    this.ux.log(html);
   }
 
   private overrideConfig(settings: NgxSettings, processFlags): NgxSettings {
