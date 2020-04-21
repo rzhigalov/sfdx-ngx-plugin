@@ -94,6 +94,22 @@ export default class Ngx extends SfdxCommand {
       )
     );
 
+    pluginSettings.sfdcVfPageName = await this.ux.prompt(
+      messages.getMessage('sfdcPageFlagDescription'),
+      {
+        default: pluginSettings.sfdcVfPageName
+      }
+    );
+
+    const suggestResourceName =
+      pluginSettings.sfdcResourceName ?? `${pluginSettings.sfdcVfPageName}Resources`;
+    pluginSettings.sfdcResourceName = await this.ux.prompt(
+      messages.getMessage('sfdcResourceFlagDescription'),
+      {
+        default: suggestResourceName
+      }
+    );
+
     // Save new plugin configuration
     projectConfig.set(`plugins.${PLUGIN_NAMESPACE}`, (pluginSettings as unknown) as JsonMap);
     await projectConfig.write(projectConfig.getContents());
@@ -130,5 +146,4 @@ export default class Ngx extends SfdxCommand {
       }
     }
   }
-
 }
