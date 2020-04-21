@@ -1,5 +1,6 @@
+// Have to use `require` as package has no callable export
 // tslint:disable-next-line no-var-requires
-const replaceInFiles = require('replace-in-file');
+const replaceInFile = require('replace-in-file');
 import { ReplaceResult } from 'replace-in-file';
 
 import {
@@ -52,7 +53,7 @@ export const updateDeployUrl = (html: string, staticResourceUrl: string): string
 };
 
 export const updateLoadedScriptsPath = async (scriptDirPath: string): Promise<ReplaceResult[]> => {
-  return replaceInFiles({
+  return replaceInFile({
     files: `${scriptDirPath}/**/*.js`,
     from: `"${SFDC_DEPLOY_TOKEN}"`,
     to: SFDC_RUNTIME_RESOURCE_TOKEN
