@@ -1,9 +1,14 @@
 import { flags, SfdxCommand } from '@salesforce/command';
-import { Messages } from '@salesforce/core';
+import { Messages, SfdxError } from '@salesforce/core';
 import { AnyJson } from '@salesforce/ts-types';
+
+import * as child_process from 'child_process';
+import * as fs from 'fs-extra';
+import * as path from 'path';
 
 import { NgxSettings } from '../../types/settings';
 import { mergeConfigDefaults } from '../../util/config';
+import { SFDC_DEPLOY_TOKEN } from '../../util/tokens';
 
 // Initialize Messages with the current plugin directory
 Messages.importMessagesDirectory(__dirname);
@@ -69,6 +74,12 @@ export default class NgxBuild extends SfdxCommand {
 
     this.ux.styledHeader('Building Angular project for SFDC');
 
+    this.ux.styledHeader('Building Angular project\n');
+    const buildExitCode = await this.buildAngularProject(projectPath, pluginSettings);
+    if (buildExitCode) {
+      throw new SfdxError(messages.getMessage('errorBuildFailed'));
+    }
+
     // Return an object to be displayed with --json
     const statusMessage = 'Angular project built and packed for SFDC deployment!';
     this.ux.log(`\n${statusMessage}`);
@@ -78,6 +89,36 @@ export default class NgxBuild extends SfdxCommand {
       success: true,
       message: statusMessage
     };
+  }
+
+  private checkAngularProject(ngDirPath: string): void {
+    if (!fs.existsSync(ngDirPath)) {
+      throw new SfdxError(messages.getMessage('errorUnresolvableDir', [ngDirPath]));
+    }
+
+    const angularJsonPath = path.resolve(ngDirPath, 'angular.json');
+    const isAngularProject = fs.existsSync(angularJsonPath);
+    if (!isAngularProject) {
+      throw new SfdxError(messages.getMessage('errorUnresolvableAngularProject', [ngDirPath]));
+    }
+  }
+
+  private async buildAngularProject(rootPath: string, settings: NgxSettings): Promise<number> {
+    const ngDirPath = path.join(rootPath, settings.ngPath);
+    this.checkAngularProject(ngDirPath);
+
+    const buildProcess = child_process.spawn(
+      settings.packageManager,
+      ['run', settings.buildScriptName, `--deployUrl=${SFDC_DEPLOY_TOKEN}`],
+      {
+        cwd: ngDirPath,
+        stdio: 'inherit'
+      }
+    );
+
+    return new Promise((resolve, reject) => {
+      buildProcess.on('close', resolve);
+    });
   }
 
   private overrideConfig(settings: NgxSettings, processFlags): NgxSettings {

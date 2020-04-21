@@ -1,5 +1,6 @@
 export const PLUGIN_NAMESPACE = 'ngx';
 
+export const SFDC_DEPLOY_TOKEN = '%%SFDC_RESOURCE_TOKEN%%';
 export const VF_TEMPLATE_FILENAME = 'vf.template.page';
 export const VF_TEMPLATE_CONTENT_TOKEN = '%%NG_CONTENT%%';
 export const VF_TEMPLATE_CONTENT =
