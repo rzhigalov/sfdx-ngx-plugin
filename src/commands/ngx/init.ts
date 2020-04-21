@@ -8,6 +8,7 @@ import * as path from 'path';
 import { NgxSettings } from '../../types/settings';
 import { mergeConfigDefaults } from '../../util/config';
 import { retry } from '../../util/misc';
+import { retrieveNgProjectJson } from '../../util/ng';
 import { parseSfdcApiVersion } from '../../util/sfdc';
 import { PLUGIN_NAMESPACE } from '../../util/tokens';
 
@@ -78,6 +79,16 @@ export default class Ngx extends SfdxCommand {
       }
     });
 
+    const ngRootPath = path.join(projectPath, pluginSettings.ngPath);
+    const suggestNgProject =
+      pluginSettings.ngProject ??
+      ((await retrieveNgProjectJson(ngRootPath))['defaultProject'] as string);
+    pluginSettings.ngProject = await this.ux.prompt(
+      messages.getMessage('ngProjectFlagDescription'),
+      {
+        default: suggestNgProject
+      }
+    );
 
     // Save new plugin configuration
     projectConfig.set(`plugins.${PLUGIN_NAMESPACE}`, (pluginSettings as unknown) as JsonMap);
