@@ -85,14 +85,6 @@ export default class NgxBuild extends SfdxCommand {
 
     await this.buildSfdcSources(projectPath, pluginSettings);
 
-    const vfPagePath = path.join(
-      projectPath,
-      pluginSettings.sfdcPath,
-      'pages',
-      `${pluginSettings.sfdcVfPageName}.page`
-    );
-    await this.transformVfPage(vfPagePath);
-
     // Return an object to be displayed with --json
     const statusMessage = 'Angular project built and packed for SFDC deployment!';
     this.ux.log(`\n${statusMessage}`);
@@ -158,6 +150,13 @@ export default class NgxBuild extends SfdxCommand {
     await fs.writeFile(`${staticResourcePath}.resource-meta.xml`, SFDC_RESOURCE_META_CONTENT);
 
     this.ux.setSpinnerStatus('Preparing Visualforce Page');
+
+    await this.transformVfPage(
+      path.join(staticResourcePath, 'index.html'),
+      path.join(projectPath, VF_TEMPLATE_FILENAME),
+      pluginSettings.sfdcResourceName
+    );
+
     await fs.move(path.join(staticResourcePath, 'index.html'), path.resolve(`${vfPagePath}.page`), {
       overwrite: true
     });
@@ -169,9 +168,12 @@ export default class NgxBuild extends SfdxCommand {
     this.ux.stopSpinner('Done');
   }
 
-  private async transformVfPage(vfPagePath: string) {
+  private async transformVfPage(vfPagePath: string, vfTemplatePath: string, staticResourceName: string): Promise<void> {
+    let vfPage: string;
     const html = await fs.readFile(vfPagePath, 'utf8');
     this.ux.log(html);
+    const vfTemplate = await fs.readFile(vfTemplatePath, 'utf8');
+    return fs.writeFile(vfPagePath, vfPage);
   }
 
   private overrideConfig(settings: NgxSettings, processFlags): NgxSettings {
