@@ -8,7 +8,7 @@ import * as path from 'path';
 
 import { NgxSettings } from '../../types/settings';
 import { mergeConfigDefaults } from '../../util/config';
-import { SFDC_DEPLOY_TOKEN } from '../../util/tokens';
+import { SFDC_DEPLOY_TOKEN, SFDC_PAGE_META_CONTENT, SFDC_RESOURCE_META_CONTENT } from '../../util/tokens';
 
 // Initialize Messages with the current plugin directory
 Messages.importMessagesDirectory(__dirname);
@@ -74,11 +74,12 @@ export default class NgxBuild extends SfdxCommand {
 
     this.ux.styledHeader('Building Angular project for SFDC');
 
-    this.ux.styledHeader('Building Angular project\n');
     const buildExitCode = await this.buildAngularProject(projectPath, pluginSettings);
     if (buildExitCode) {
       throw new SfdxError(messages.getMessage('errorBuildFailed'));
     }
+
+    await this.buildSfdcSources(projectPath, pluginSettings);
 
     // Return an object to be displayed with --json
     const statusMessage = 'Angular project built and packed for SFDC deployment!';
@@ -119,6 +120,41 @@ export default class NgxBuild extends SfdxCommand {
     return new Promise((resolve, reject) => {
       buildProcess.on('close', resolve);
     });
+  }
+
+  private async buildSfdcSources(projectPath: string, pluginSettings: NgxSettings) {
+    const ngDirPath = path.resolve(projectPath, pluginSettings.ngPath);
+    const ngProjectPath = path.resolve(ngDirPath, 'dist', pluginSettings.ngProject);
+    const sfdcDirPath = path.resolve(projectPath, pluginSettings.sfdcPath);
+    const staticResourcePath = path.join(
+      sfdcDirPath,
+      'staticresources',
+      pluginSettings.sfdcResourceName
+    );
+    const vfPagePath = path.join(sfdcDirPath, 'pages', pluginSettings.sfdcVfPageName);
+
+    this.ux.startSpinner('Creating Angular SFDC application');
+
+    this.ux.setSpinnerStatus('Preparing folders');
+    await fs.ensureDir(sfdcDirPath);
+    await fs.ensureDir(path.join(sfdcDirPath, 'pages'));
+    await fs.remove(staticResourcePath);
+    await fs.ensureDir(staticResourcePath);
+
+    this.ux.setSpinnerStatus('Moving Angular dist');
+    await fs.copy(ngProjectPath, staticResourcePath);
+    await fs.writeFile(`${staticResourcePath}.resource-meta.xml`, SFDC_RESOURCE_META_CONTENT);
+
+    this.ux.setSpinnerStatus('Preparing Visualforce Page');
+    await fs.move(path.join(staticResourcePath, 'index.html'), path.resolve(`${vfPagePath}.page`), {
+      overwrite: true
+    });
+    await fs.writeFile(
+      `${vfPagePath}.page-meta.xml`,
+      SFDC_PAGE_META_CONTENT(pluginSettings.sfdcApiVersion, pluginSettings.sfdcVfPageName)
+    );
+
+    this.ux.stopSpinner('Done');
   }
 
   private overrideConfig(settings: NgxSettings, processFlags): NgxSettings {
