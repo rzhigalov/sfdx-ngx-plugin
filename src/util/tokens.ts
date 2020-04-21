@@ -1,6 +1,7 @@
 export const PLUGIN_NAMESPACE = 'ngx';
 
 export const SFDC_DEPLOY_TOKEN = '%%SFDC_RESOURCE_TOKEN%%';
+export const SFDC_RUNTIME_RESOURCE_TOKEN = '__SFDC_RESOURCE_TOKEN__';
 export const SFDC_PAGE_META_CONTENT = (apiVersion: string, pageName: string) =>
   `<?xml version="1.0" encoding="UTF-8"?>
 <ApexPage xmlns="http://soap.sforce.com/2006/04/metadata">

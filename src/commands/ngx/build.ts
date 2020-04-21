@@ -145,6 +145,9 @@ export default class NgxBuild extends SfdxCommand {
     await fs.remove(staticResourcePath);
     await fs.ensureDir(staticResourcePath);
 
+    this.ux.setSpinnerStatus('Updating lazy scripts runtime path');
+    await vfTransform.updateLoadedScriptsPath(ngProjectPath);
+
     this.ux.setSpinnerStatus('Moving Angular dist');
     await fs.copy(ngProjectPath, staticResourcePath);
     await fs.writeFile(`${staticResourcePath}.resource-meta.xml`, SFDC_RESOURCE_META_CONTENT);
