@@ -9,6 +9,7 @@
   "sfdcPageFlagDescription": "SFDC Static Visualforce page name",
   "sfdcResourceFlagDescription": "SFDC Static Resource name",
   "promptCreateDir": "Do you want to create folder? (y/n)",
+  "promptRewriteFile": "File already exists. Do you want to rewrite it (all contents will be lost)? (y/n)",
   "errorInvalidApiVersion": "Invalid API version format [%s]",
   "errorUnresolvableDir": "Can't resolve path to '%s'."
 }

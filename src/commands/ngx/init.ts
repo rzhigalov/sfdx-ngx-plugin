@@ -10,7 +10,7 @@ import { mergeConfigDefaults } from '../../util/config';
 import { retry } from '../../util/misc';
 import { retrieveNgProjectJson } from '../../util/ng';
 import { parseSfdcApiVersion } from '../../util/sfdc';
-import { PLUGIN_NAMESPACE } from '../../util/tokens';
+import { PLUGIN_NAMESPACE, VF_TEMPLATE_CONTENT, VF_TEMPLATE_FILENAME } from '../../util/tokens';
 
 // Initialize Messages with the current plugin directory
 Messages.importMessagesDirectory(__dirname);
@@ -110,6 +110,11 @@ export default class Ngx extends SfdxCommand {
       }
     );
 
+    this.ux.log();
+    this.ux.startSpinner('Preparing Visualforce Page template');
+    await this.createVfTemplate(projectPath);
+    this.ux.stopSpinner('Done');
+
     // Save new plugin configuration
     projectConfig.set(`plugins.${PLUGIN_NAMESPACE}`, (pluginSettings as unknown) as JsonMap);
     await projectConfig.write(projectConfig.getContents());
@@ -144,6 +149,16 @@ export default class Ngx extends SfdxCommand {
         await fs.ensureDir(dirRootPath);
         return dirPath;
       }
+    }
+  }
+
+  private async createVfTemplate(rootPath: string): Promise<void> {
+    const vfTemplatePath = path.join(rootPath, VF_TEMPLATE_FILENAME);
+    if (
+      !fs.existsSync(vfTemplatePath) ||
+      (await this.ux.confirm(messages.getMessage('promptRewriteFile')))
+    ) {
+      return fs.writeFile(vfTemplatePath, VF_TEMPLATE_CONTENT);
     }
   }
 }
