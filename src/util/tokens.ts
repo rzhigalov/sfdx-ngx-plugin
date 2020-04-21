@@ -25,3 +25,8 @@ export const VF_TEMPLATE_CONTENT = `<apex:page showHeader="false" sidebar="false
     ${VF_TEMPLATE_CONTENT_TOKEN}
 </apex:page>
 `;
+export const VF_PAGE_SCRIPTS = `
+  <script>
+    var ${SFDC_RUNTIME_RESOURCE_TOKEN} = "${SFDC_DEPLOY_TOKEN}";
+  </script>
+`;

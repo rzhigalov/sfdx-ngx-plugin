@@ -4,6 +4,7 @@ const replaceInFiles = require('replace-in-file');
 import {
   SFDC_DEPLOY_TOKEN,
   SFDC_RUNTIME_RESOURCE_TOKEN,
+  VF_PAGE_SCRIPTS,
   VF_TEMPLATE_CONTENT_TOKEN
 } from './tokens';
 
@@ -24,6 +25,11 @@ export const sanitizeTags = (html: string): string => {
 export const wrapIntoVfPage = (html: string, template: string): string => {
   html = html.slice('<!doctype html>'.length);
   return template.replace(VF_TEMPLATE_CONTENT_TOKEN, html);
+};
+
+export const updateDeployUrl = (html: string, staticResourceUrl: string): string => {
+  html = html.split('</head>').join(VF_PAGE_SCRIPTS + '\n</head>');
+  return html.split(SFDC_DEPLOY_TOKEN).join(staticResourceUrl);
 };
 
 export const updateLoadedScriptsPath = async (scriptDirPath: string): Promise<any> => {
