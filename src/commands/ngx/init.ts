@@ -1,6 +1,10 @@
 import { SfdxCommand } from '@salesforce/command';
 import { Messages } from '@salesforce/core';
-import { AnyJson } from '@salesforce/ts-types';
+import { AnyJson, JsonMap } from '@salesforce/ts-types';
+
+import { NgxSettings } from '../../types/settings';
+import { mergeConfigDefaults } from '../../util/config';
+import { PLUGIN_NAMESPACE } from '../../util/tokens';
 
 // Initialize Messages with the current plugin directory
 Messages.importMessagesDirectory(__dirname);
@@ -23,7 +27,14 @@ export default class Ngx extends SfdxCommand {
   protected static requiresProject = true;
 
   public async run(): Promise<AnyJson> {
+    const projectConfig = await this.project.retrieveSfdxProjectJson();
+    const pluginSettings: NgxSettings = await mergeConfigDefaults(projectConfig.getContents());
+
     this.ux.styledHeader('Plugin Setup');
+
+    // Save new plugin configuration
+    projectConfig.set(`plugins.${PLUGIN_NAMESPACE}`, (pluginSettings as unknown) as JsonMap);
+    await projectConfig.write(projectConfig.getContents());
 
     const statusMessage = 'Plugin set up and ready to go!';
     this.ux.log(`\n${statusMessage}`);
