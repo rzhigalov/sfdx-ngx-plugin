@@ -1,4 +1,5 @@
 {
+  "buildCommandDescription": "Builds Angular project and packs for SFDC deployment",
   "initCommandDescription": "Initializes config and files for plugin",
   "packageManagerFlagDescription": "Used package manager (npm, yarn, pnpm)",
   "buildcmdFlagDescription": "Angular build command",
