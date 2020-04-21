@@ -11,8 +11,11 @@ import { mergeConfigDefaults } from '../../util/config';
 import {
   SFDC_DEPLOY_TOKEN,
   SFDC_PAGE_META_CONTENT,
-  SFDC_RESOURCE_META_CONTENT
+  SFDC_RESOURCE_META_CONTENT,
+  VF_TEMPLATE_FILENAME
 } from '../../util/tokens';
+import * as vfTransform from '../../util/visualforceTransform';
+import { composeStaticResourceUrl } from '../../util/sfdc';
 
 // Initialize Messages with the current plugin directory
 Messages.importMessagesDirectory(__dirname);
@@ -173,8 +176,8 @@ export default class NgxBuild extends SfdxCommand {
 
   private async transformVfPage(vfPagePath: string, vfTemplatePath: string, staticResourceName: string): Promise<void> {
     let vfPage: string;
+    const staticResourceUrl = composeStaticResourceUrl(staticResourceName);
     const html = await fs.readFile(vfPagePath, 'utf8');
-    this.ux.log(html);
     const vfTemplate = await fs.readFile(vfTemplatePath, 'utf8');
     return fs.writeFile(vfPagePath, vfPage);
   }

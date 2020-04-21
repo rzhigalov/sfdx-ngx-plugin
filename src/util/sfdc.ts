@@ -7,3 +7,5 @@ export const parseSfdcApiVersion = (v: string | number): string => {
   }
   return !isNaN(Number(v)) ? `${v}.0` : null;
 };
+
+export const composeStaticResourceUrl = (resourceName: string) => `{!URLFOR($Resource.${resourceName})}/`;
