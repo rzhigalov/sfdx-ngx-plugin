@@ -8,6 +8,7 @@ import * as path from 'path';
 
 import { NgxSettings } from '../../types/settings';
 import { mergeConfigDefaults } from '../../util/config';
+import { composeStaticResourceUrl } from '../../util/sfdc';
 import {
   SFDC_DEPLOY_TOKEN,
   SFDC_PAGE_META_CONTENT,
@@ -15,7 +16,17 @@ import {
   VF_TEMPLATE_FILENAME
 } from '../../util/tokens';
 import * as vfTransform from '../../util/visualforceTransform';
-import { composeStaticResourceUrl } from '../../util/sfdc';
+
+interface BuildFlags {
+  apiversion: string;
+  packagemanager: string;
+  buildcmd: string;
+  ngpath: string;
+  ngproject: string;
+  sfdcpath: string;
+  sfdcpage: string;
+  sfdcresource: string;
+}
 
 // Initialize Messages with the current plugin directory
 Messages.importMessagesDirectory(__dirname);
@@ -50,14 +61,14 @@ export default class NgxBuild extends SfdxCommand {
     apiversion: flags.builtin({
       description: messages.getMessage('apiversionFlagDescription')
     }),
-    path: flags.directory({
+    ngpath: flags.directory({
       char: 'p',
       description: messages.getMessage('ngPathFlagDescription')
     }),
     ngproject: flags.directory({
       description: messages.getMessage('ngProjectFlagDescription')
     }),
-    target: flags.directory({
+    sfdcpath: flags.directory({
       char: 't',
       description: messages.getMessage('sfdcPathFlagDescription')
     }),
@@ -76,7 +87,7 @@ export default class NgxBuild extends SfdxCommand {
     const projectConfig = await this.project.retrieveSfdxProjectJson();
     const pluginSettings: NgxSettings = this.overrideConfig(
       await mergeConfigDefaults(projectConfig.getContents()),
-      this.flags
+      this.flags as BuildFlags
     );
 
     this.ux.styledHeader('Building Angular project for SFDC');
@@ -192,7 +203,7 @@ export default class NgxBuild extends SfdxCommand {
     return fs.writeFile(vfPagePath, vfPage);
   }
 
-  private overrideConfig(settings: NgxSettings, processFlags): NgxSettings {
+  private overrideConfig(settings: NgxSettings, processFlags: BuildFlags): NgxSettings {
     if (processFlags.buildcmd) {
       settings.buildScriptName = processFlags.buildcmd;
     }
@@ -202,17 +213,17 @@ export default class NgxBuild extends SfdxCommand {
     if (processFlags.apiversion) {
       settings.sfdcApiVersion = processFlags.apiversion;
     }
-    if (processFlags.path) {
-      settings.ngPath = processFlags.path;
+    if (processFlags.ngpath) {
+      settings.ngPath = processFlags.ngpath;
     }
     if (processFlags.ngproject) {
-      settings.ngProject = processFlags.ngprojects;
+      settings.ngProject = processFlags.ngproject;
     }
-    if (processFlags.target) {
-      settings.sfdcPath = processFlags.target;
+    if (processFlags.sfdcpath) {
+      settings.sfdcPath = processFlags.sfdcpath;
     }
     if (processFlags.sfdcpage) {
-      settings.sfdcVfPageName = processFlags.lasfdcpa;
+      settings.sfdcVfPageName = processFlags.sfdcpage;
     }
     if (processFlags.sfdcresource) {
       settings.sfdcResourceName = processFlags.sfdcresource;
