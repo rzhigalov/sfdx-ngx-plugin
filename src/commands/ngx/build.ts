@@ -13,6 +13,7 @@ import {
   SFDC_DEPLOY_TOKEN,
   SFDC_PAGE_META_CONTENT,
   SFDC_RESOURCE_META_CONTENT,
+  VF_TEMPLATE_CONTENT,
   VF_TEMPLATE_FILENAME
 } from '../../util/tokens';
 import * as vfTransform from '../../util/visualforceTransform';
@@ -168,9 +169,11 @@ export default class NgxBuild extends SfdxCommand {
 
     this.ux.setSpinnerStatus('Preparing Visualforce Page');
 
+    const vfTemplatePath = path.join(projectPath, VF_TEMPLATE_FILENAME);
+    const vfTemplate = await this.getVfTemplate(vfTemplatePath);
     await this.transformVfPage(
       path.join(staticResourcePath, 'index.html'),
-      path.join(projectPath, VF_TEMPLATE_FILENAME),
+      vfTemplate,
       pluginSettings.sfdcResourceName
     );
 
@@ -185,11 +188,14 @@ export default class NgxBuild extends SfdxCommand {
     this.ux.stopSpinner('Done');
   }
 
-  private async transformVfPage(vfPagePath: string, vfTemplatePath: string, staticResourceName: string): Promise<void> {
+  private async transformVfPage(
+    vfPagePath: string,
+    vfTemplate: string,
+    staticResourceName: string
+  ): Promise<void> {
     let vfPage: string;
     const staticResourceUrl = composeStaticResourceUrl(staticResourceName);
     const html = await fs.readFile(vfPagePath, 'utf8');
-    const vfTemplate = await fs.readFile(vfTemplatePath, 'utf8');
 
     this.ux.setSpinnerStatus('Transforming html to Visualforce');
     vfPage = vfTransform.wrapIntoVfPage(html, vfTemplate);
@@ -201,6 +207,13 @@ export default class NgxBuild extends SfdxCommand {
     vfPage = vfTransform.createLegacyScriptsInitializer(vfPage);
 
     return fs.writeFile(vfPagePath, vfPage);
+  }
+
+  private async getVfTemplate(templatePath: string): Promise<string> {
+    if (fs.existsSync(templatePath)) {
+      return await fs.readFile(templatePath, 'utf8');
+    }
+    return VF_TEMPLATE_CONTENT;
   }
 
   private overrideConfig(settings: NgxSettings, processFlags: BuildFlags): NgxSettings {
