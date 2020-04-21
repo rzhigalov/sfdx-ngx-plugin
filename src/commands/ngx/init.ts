@@ -4,7 +4,9 @@ import { AnyJson, JsonMap } from '@salesforce/ts-types';
 
 import { NgxSettings } from '../../types/settings';
 import { mergeConfigDefaults } from '../../util/config';
+import { retry } from '../../util/misc';
 import { PLUGIN_NAMESPACE } from '../../util/tokens';
+import { parseSfdcApiVersion } from '../../util/sfdc';
 
 // Initialize Messages with the current plugin directory
 Messages.importMessagesDirectory(__dirname);
@@ -45,6 +47,19 @@ export default class Ngx extends SfdxCommand {
         default: pluginSettings.buildScriptName
       }
     );
+
+    pluginSettings.sfdcApiVersion = await retry(async () => {
+      const ver = await this.ux.prompt(messages.getMessage('apiversionFlagDescription'), {
+        default: pluginSettings.sfdcApiVersion
+      });
+
+      const apiVersion = parseSfdcApiVersion(ver);
+      if (apiVersion) {
+        return apiVersion;
+      } else {
+        this.ux.error(messages.getMessage('errorInvalidApiVersion', [`${ver}`]));
+      }
+    });
 
     // Save new plugin configuration
     projectConfig.set(`plugins.${PLUGIN_NAMESPACE}`, (pluginSettings as unknown) as JsonMap);
