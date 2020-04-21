@@ -41,12 +41,27 @@ export default class NgxBuild extends SfdxCommand {
   public static description = messages.getMessage('buildCommandDescription');
 
   public static examples = [
-    `$ sfdx ngx:build
+    `# Uses initialized plugin settings
+$ sfdx ngx:build
 
-    ADD EXAMPLE OUTPUT
+    === Building Angular project for SFDC
+    ...
+    Creating Angular SFDC application... Done
+
+    Angular project built and packed for SFDC deployment!
+
   `,
-    `
-    ADD EXTENDED EXAMPLE DESCRIPTION
+    `# Flag overrides take precedence over plugin settings
+# After plugin will finish execution you will be offered to update plugin settings
+$ sfdx ngx:build
+  -b build:sfdc (--buildcmd=build:commandname)
+  -m yarn (--packagemanager=(npm|yarn|pnpm))
+  -p client (--ngpath=relative/path/to/angular-app)
+  -t forceApp/main/ngApp (--sfdcpath=relative/path/to/sfdc-folder)
+  --apiversion 42.0
+  --ngproject ng-app-name
+  --sfdcpage PageName
+  --sfdcresource StaticResourceName
   `
   ];
 
