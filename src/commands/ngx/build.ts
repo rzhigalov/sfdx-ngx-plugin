@@ -162,8 +162,7 @@ $ sfdx ngx:build
         stdio: 'inherit'
       }
     );
-
-    return new Promise((resolve, reject) => {
+    return new Promise<number>((resolve, reject) => {
       buildProcess.on('close', resolve);
     });
   }

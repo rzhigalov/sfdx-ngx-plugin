@@ -76,7 +76,7 @@ export default class NgxInit extends SfdxCommand {
 
     const ngRootPath = path.join(projectPath, pluginSettings.ngPath);
     const suggestNgProject =
-      pluginSettings.ngProject ??
+      pluginSettings.ngProject ||
       ((await retrieveNgProjectJson(ngRootPath))['defaultProject'] as string);
     pluginSettings.ngProject = await this.ux.prompt(
       messages.getMessage('ngProjectFlagDescription'),
@@ -102,7 +102,7 @@ export default class NgxInit extends SfdxCommand {
     );
 
     const suggestResourceName =
-      pluginSettings.sfdcResourceName ?? `${pluginSettings.sfdcVfPageName}Resources`;
+      pluginSettings.sfdcResourceName || `${pluginSettings.sfdcVfPageName}Resources`;
     pluginSettings.sfdcResourceName = await this.ux.prompt(
       messages.getMessage('sfdcResourceFlagDescription'),
       {
