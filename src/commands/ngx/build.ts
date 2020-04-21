@@ -2,6 +2,9 @@ import { SfdxCommand } from '@salesforce/command';
 import { Messages } from '@salesforce/core';
 import { AnyJson } from '@salesforce/ts-types';
 
+import { NgxSettings } from '../../types/settings';
+import { mergeConfigDefaults } from '../../util/config';
+
 // Initialize Messages with the current plugin directory
 Messages.importMessagesDirectory(__dirname);
 
@@ -27,6 +30,10 @@ export default class NgxBuild extends SfdxCommand {
   protected static requiresProject = true;
 
   public async run(): Promise<AnyJson> {
+    const projectPath = await this.project.getPath();
+    const projectConfig = await this.project.retrieveSfdxProjectJson();
+    const pluginSettings: NgxSettings = await mergeConfigDefaults(projectConfig.getContents());
+
     this.ux.styledHeader('Building Angular project for SFDC');
 
     // Return an object to be displayed with --json
