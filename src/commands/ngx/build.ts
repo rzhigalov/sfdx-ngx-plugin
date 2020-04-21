@@ -179,6 +179,11 @@ export default class NgxBuild extends SfdxCommand {
     const staticResourceUrl = composeStaticResourceUrl(staticResourceName);
     const html = await fs.readFile(vfPagePath, 'utf8');
     const vfTemplate = await fs.readFile(vfTemplatePath, 'utf8');
+
+    this.ux.setSpinnerStatus('Transforming html to Visualforce');
+    vfPage = vfTransform.wrapIntoVfPage(html, vfTemplate);
+    this.ux.setSpinnerStatus('Sanitizing tags');
+    vfPage = vfTransform.sanitizeTags(vfPage);
     return fs.writeFile(vfPagePath, vfPage);
   }
 
