@@ -7,6 +7,12 @@ SFDX plugin for Angular apps deployment on Salesforce
 [![Downloads/week](https://img.shields.io/npm/dw/sfdx-ngx-plugin.svg)](https://npmjs.org/package/sfdx-ngx-plugin)
 [![License](https://img.shields.io/npm/l/sfdx-ngx-plugin.svg)](https://github.com/rzhigalov/sfdx-ngx-plugin/blob/master/package.json)
 
+
+<div style="padding: 10px;background: rgba(227, 98, 9, 0.5);">
+  <div>⚠️ This package is yet in <b>beta</b> version and may not work in <i>all</i> cases.</div>
+  <div>Please, create an <a href="https://github.com/rzhigalov/sfdx-ngx-plugin/issues/new" target="_blank">issue</a> if you encountered any issues</div>
+</div>
+
 <!-- install -->
 ### Prerequesites
 1. [SFDX](https://developer.salesforce.com/tools/sfdxcli)
@@ -30,7 +36,6 @@ SFDX plugin for Angular apps deployment on Salesforce
    `sfdx plugins:link .`
 
 ## Usage
-
 ### General flow
 1. [Setup SFDX project](https://developer.salesforce.com/docs/atlas.en-us.sfdx_dev.meta/sfdx_dev/sfdx_dev_ws_create_new.htm)
    e.g. `sfdx force:project:create -n ProjectName --template standard`)
@@ -43,7 +48,6 @@ SFDX plugin for Angular apps deployment on Salesforce
 7. Deploy code to Salesforce (`sfdx force:source:deploy` or `sfdx force:source:push`)
 
 ---
-
 #### `sfdx ngx:init`
 Initializes files and settings for plugin
 ```
