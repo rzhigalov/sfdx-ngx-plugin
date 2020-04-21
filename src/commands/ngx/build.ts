@@ -1,15 +1,16 @@
 import { flags, SfdxCommand } from '@salesforce/command';
 import { Messages, SfdxError } from '@salesforce/core';
-import { AnyJson } from '@salesforce/ts-types';
+import { AnyJson, JsonMap } from '@salesforce/ts-types';
 
 import * as child_process from 'child_process';
 import * as fs from 'fs-extra';
 import * as path from 'path';
 
 import { NgxSettings } from '../../types/settings';
-import { mergeConfigDefaults } from '../../util/config';
+import { getPluginConfig, mergeConfigDefaults } from '../../util/config';
 import { composeStaticResourceUrl } from '../../util/sfdc';
 import {
+  PLUGIN_NAMESPACE,
   SFDC_DEPLOY_TOKEN,
   SFDC_PAGE_META_CONTENT,
   SFDC_RESOURCE_META_CONTENT,
@@ -103,6 +104,17 @@ export default class NgxBuild extends SfdxCommand {
     // Return an object to be displayed with --json
     const statusMessage = 'Angular project built and packed for SFDC deployment!';
     this.ux.log(`\n${statusMessage}`);
+
+    if (this.hasOverrides(getPluginConfig(projectConfig.getContents()), this.flags as BuildFlags)) {
+      if (
+        await this.ux.confirm(
+          '\nDo you want to update plugin settings with new configuration? (y/n)'
+        )
+      ) {
+        projectConfig.set(`plugins.${PLUGIN_NAMESPACE}`, (pluginSettings as unknown) as JsonMap);
+        await projectConfig.write(projectConfig.getContents());
+      }
+    }
 
     // Return an object to be displayed with --json
     return {
@@ -214,6 +226,21 @@ export default class NgxBuild extends SfdxCommand {
       return await fs.readFile(templatePath, 'utf8');
     }
     return VF_TEMPLATE_CONTENT;
+  }
+
+  private hasOverrides(settings: NgxSettings, processFlags: BuildFlags): boolean {
+    return (
+      !settings ||
+      !Object.keys(settings).length ||
+      (processFlags.buildcmd && processFlags.buildcmd !== settings.buildScriptName) ||
+      (processFlags.packagemanager && processFlags.packagemanager !== settings.packageManager) ||
+      (processFlags.apiversion && processFlags.apiversion !== settings.sfdcApiVersion) ||
+      (processFlags.ngpath && processFlags.ngpath !== settings.ngPath) ||
+      (processFlags.ngproject && processFlags.ngproject !== settings.ngProject) ||
+      (processFlags.sfdcpath && processFlags.sfdcpath !== settings.sfdcPath) ||
+      (processFlags.sfdcpage && processFlags.sfdcpage !== settings.sfdcVfPageName) ||
+      (processFlags.sfdcresource && processFlags.sfdcresource !== settings.sfdcResourceName)
+    );
   }
 
   private overrideConfig(settings: NgxSettings, processFlags: BuildFlags): NgxSettings {
