@@ -111,9 +111,11 @@ export default class NgxInit extends SfdxCommand {
     );
 
     this.ux.log();
-    this.ux.startSpinner('Preparing Visualforce Page template');
-    await this.createVfTemplate(projectPath);
-    this.ux.stopSpinner('Done');
+    if (await this.ux.confirm(messages.getMessage('promptCreateVfTemplate'))) {
+      this.ux.startSpinner('Preparing Visualforce Page template');
+      await this.createVfTemplate(projectPath);
+      this.ux.stopSpinner('Done');
+    }
 
     const settings = (pluginSettings as unknown) as JsonMap;
     // Save new plugin configuration
