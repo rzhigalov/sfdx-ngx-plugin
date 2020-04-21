@@ -1,4 +1,4 @@
-import { SfdxCommand } from '@salesforce/command';
+import { flags, SfdxCommand } from '@salesforce/command';
 import { Messages } from '@salesforce/core';
 import { AnyJson } from '@salesforce/ts-types';
 
@@ -25,14 +25,47 @@ export default class NgxBuild extends SfdxCommand {
   `
   ];
 
-  protected static flagsConfig = {};
+  protected static flagsConfig = {
+    buildcmd: flags.string({
+      char: 'b',
+      description: messages.getMessage('buildcmdFlagDescription')
+    }),
+    packagemanager: flags.enum({
+      char: 'm',
+      description: messages.getMessage('packageManagerFlagDescription'),
+      options: ['npm', 'yarn', 'pnpm']
+    }),
+    apiversion: flags.builtin({
+      description: messages.getMessage('apiversionFlagDescription')
+    }),
+    path: flags.directory({
+      char: 'p',
+      description: messages.getMessage('ngPathFlagDescription')
+    }),
+    ngproject: flags.directory({
+      description: messages.getMessage('ngProjectFlagDescription')
+    }),
+    target: flags.directory({
+      char: 't',
+      description: messages.getMessage('sfdcPathFlagDescription')
+    }),
+    sfdcpage: flags.string({
+      description: messages.getMessage('sfdcPageFlagDescription')
+    }),
+    sfdcresource: flags.string({
+      description: messages.getMessage('sfdcResourceFlagDescription')
+    })
+  };
 
   protected static requiresProject = true;
 
   public async run(): Promise<AnyJson> {
     const projectPath = await this.project.getPath();
     const projectConfig = await this.project.retrieveSfdxProjectJson();
-    const pluginSettings: NgxSettings = await mergeConfigDefaults(projectConfig.getContents());
+    const pluginSettings: NgxSettings = this.overrideConfig(
+      await mergeConfigDefaults(projectConfig.getContents()),
+      this.flags
+    );
 
     this.ux.styledHeader('Building Angular project for SFDC');
 
@@ -45,5 +78,34 @@ export default class NgxBuild extends SfdxCommand {
       success: true,
       message: statusMessage
     };
+  }
+
+  private overrideConfig(settings: NgxSettings, processFlags): NgxSettings {
+    if (processFlags.buildcmd) {
+      settings.buildScriptName = processFlags.buildcmd;
+    }
+    if (processFlags.packagemanager) {
+      settings.packageManager = processFlags.packagemanager;
+    }
+    if (processFlags.apiversion) {
+      settings.sfdcApiVersion = processFlags.apiversion;
+    }
+    if (processFlags.path) {
+      settings.ngPath = processFlags.path;
+    }
+    if (processFlags.ngproject) {
+      settings.ngProject = processFlags.ngprojects;
+    }
+    if (processFlags.target) {
+      settings.sfdcPath = processFlags.target;
+    }
+    if (processFlags.sfdcpage) {
+      settings.sfdcVfPageName = processFlags.lasfdcpa;
+    }
+    if (processFlags.sfdcresource) {
+      settings.sfdcResourceName = processFlags.sfdcresource;
+    }
+
+    return settings;
   }
 }
