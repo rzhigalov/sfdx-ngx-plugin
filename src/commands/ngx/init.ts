@@ -115,8 +115,9 @@ export default class NgxInit extends SfdxCommand {
     await this.createVfTemplate(projectPath);
     this.ux.stopSpinner('Done');
 
+    const settings = (pluginSettings as unknown) as JsonMap;
     // Save new plugin configuration
-    projectConfig.set(`plugins.${PLUGIN_NAMESPACE}`, (pluginSettings as unknown) as JsonMap);
+    projectConfig.set(`plugins.${PLUGIN_NAMESPACE}`, settings);
     await projectConfig.write(projectConfig.getContents());
 
     const statusMessage = 'Plugin set up and ready to go!';
@@ -125,7 +126,8 @@ export default class NgxInit extends SfdxCommand {
     // Return an object to be displayed with --json
     return {
       success: true,
-      message: statusMessage
+      message: statusMessage,
+      settings
     };
   }
 
