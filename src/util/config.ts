@@ -5,9 +5,11 @@ import { PLUGIN_NAMESPACE } from './tokens';
 export const DEFAULT_SFDC_DIR = 'forceApp/main/default';
 export const DEFAULT_SFDC_VFPAGE_NAME = 'ngxSfdc';
 
+export const getPluginConfig = (projectSettings: JsonMap): NgxSettings =>
+  (projectSettings.plugins && { ...projectSettings.plugins[PLUGIN_NAMESPACE]}) ?? {};
+
 export const mergeConfigDefaults = (projectSettings: JsonMap): NgxSettings => {
-  const settings: NgxSettings =
-    (projectSettings.plugins && projectSettings.plugins[PLUGIN_NAMESPACE]) ?? {};
+  const settings: NgxSettings = getPluginConfig(projectSettings);
 
   settings.packageManager = settings.packageManager ?? 'npm';
   settings.buildScriptName = settings.buildScriptName ?? 'build';
