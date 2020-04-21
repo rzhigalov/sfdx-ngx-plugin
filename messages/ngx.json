@@ -3,5 +3,7 @@
   "packageManagerFlagDescription": "Used package manager (npm, yarn, pnpm)",
   "buildcmdFlagDescription": "Angular build command",
   "apiversionFlagDescription": "SFDC API version",
+  "ngPathFlagDescription": "Relative path to Angular project (folder with angular.json)",
   "errorInvalidApiVersion": "Invalid API version format [%s]",
+  "errorUnresolvableDir": "Can't resolve path to '%s'."
 }

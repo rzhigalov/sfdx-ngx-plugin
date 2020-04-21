@@ -2,11 +2,14 @@ import { SfdxCommand } from '@salesforce/command';
 import { Messages } from '@salesforce/core';
 import { AnyJson, JsonMap } from '@salesforce/ts-types';
 
+import * as fs from 'fs-extra';
+import * as path from 'path';
+
 import { NgxSettings } from '../../types/settings';
 import { mergeConfigDefaults } from '../../util/config';
 import { retry } from '../../util/misc';
-import { PLUGIN_NAMESPACE } from '../../util/tokens';
 import { parseSfdcApiVersion } from '../../util/sfdc';
+import { PLUGIN_NAMESPACE } from '../../util/tokens';
 
 // Initialize Messages with the current plugin directory
 Messages.importMessagesDirectory(__dirname);
@@ -29,6 +32,7 @@ export default class Ngx extends SfdxCommand {
   protected static requiresProject = true;
 
   public async run(): Promise<AnyJson> {
+    const projectPath = await this.project.getPath();
     const projectConfig = await this.project.retrieveSfdxProjectJson();
     const pluginSettings: NgxSettings = await mergeConfigDefaults(projectConfig.getContents());
 
@@ -60,6 +64,20 @@ export default class Ngx extends SfdxCommand {
         this.ux.error(messages.getMessage('errorInvalidApiVersion', [`${ver}`]));
       }
     });
+
+    pluginSettings.ngPath = await retry(async () => {
+      const ngPath = await this.ux.prompt(messages.getMessage('ngPathFlagDescription'), {
+        default: pluginSettings.ngPath
+      });
+
+      const ngRootPath = path.join(projectPath, ngPath);
+      if (fs.existsSync(ngRootPath)) {
+        return ngPath;
+      } else {
+        this.ux.error(messages.getMessage('errorUnresolvableDir', [`${ngPath}`]));
+      }
+    });
+
 
     // Save new plugin configuration
     projectConfig.set(`plugins.${PLUGIN_NAMESPACE}`, (pluginSettings as unknown) as JsonMap);
