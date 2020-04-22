@@ -139,6 +139,10 @@ export default class NgxInit extends SfdxCommand {
     rootPath: string,
     promptCreate?: boolean
   ): Promise<string> {
+    if (defaultValue && !fs.existsSync(path.join(rootPath, defaultValue))) {
+      defaultValue = undefined;
+    }
+
     const dirPath = await this.ux.prompt(message, {
       default: defaultValue
     });

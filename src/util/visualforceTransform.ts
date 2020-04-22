@@ -35,7 +35,7 @@ export const createLegacyScriptsInitializer = (html: string): string => {
 
 export const sanitizeTags = (html: string): string => {
   // Convert non-closed tags into self-closing tags
-  const openTagRegexp = /<(link|base).+?[^/]>/g;
+  const openTagRegexp = /<(link|base|meta).+?[^\/]>/g;
   let match = openTagRegexp.exec(html);
   while (match !== null) {
     html =

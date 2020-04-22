@@ -2,7 +2,7 @@ import { JsonMap } from '@salesforce/ts-types';
 import { NgxSettings } from '../types/settings';
 import { PLUGIN_NAMESPACE } from './tokens';
 
-export const DEFAULT_SFDC_DIR = 'forceApp/main/default';
+export const DEFAULT_SFDC_DIR = 'force-app/main/default';
 export const DEFAULT_SFDC_VFPAGE_NAME = 'ngxSfdc';
 
 export const getPluginConfig = (projectSettings: JsonMap): NgxSettings =>
