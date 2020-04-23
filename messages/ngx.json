@@ -15,5 +15,6 @@
   "errorInvalidApiVersion": "Invalid API version format [%s]",
   "errorUnresolvableDir": "Can't resolve path to '%s'.",
   "errorUnresolvableAngularProject": "Can't resolve Angular project",
-  "errorBuildFailed": "Failed to build Angular project"
+  "errorBuildFailed": "Failed to build Angular project",
+  "errorVfTransformFailed": "Failed to build compose VF page"
 }

@@ -154,14 +154,16 @@ $ sfdx ngx:build
     const ngDirPath = path.join(rootPath, settings.ngPath);
     this.checkAngularProject(ngDirPath);
 
-    const buildProcess = child_process.spawn(
-      settings.packageManager,
-      ['run', settings.buildScriptName, `--deployUrl=${SFDC_DEPLOY_TOKEN}`],
-      {
-        cwd: ngDirPath,
-        stdio: 'inherit'
-      }
-    );
+    const buildCommands = ['run', settings.buildScriptName];
+    if (settings.packageManager !== 'yarn') {
+      buildCommands.push('--');
+    }
+    buildCommands.push(`--deployUrl=${SFDC_DEPLOY_TOKEN}`);
+
+    const buildProcess = child_process.spawn(settings.packageManager, buildCommands, {
+      cwd: ngDirPath,
+      stdio: 'inherit'
+    });
     return new Promise<number>((resolve, reject) => {
       buildProcess.on('close', resolve);
     });
@@ -222,6 +224,10 @@ $ sfdx ngx:build
     let vfPage: string;
     const staticResourceUrl = composeStaticResourceUrl(staticResourceName);
     const html = await fs.readFile(vfPagePath, 'utf8');
+
+    if (!vfTransform.checkBuildValidity(html)) {
+      throw new SfdxError(messages.getMessage('errorVfTransformFailed'));
+    }
 
     this.ux.setSpinnerStatus('Transforming html to Visualforce');
     vfPage = vfTransform.wrapIntoVfPage(html, vfTemplate);

@@ -1,7 +1,7 @@
 {
   "name": "sfdx-ngx-plugin",
   "description": "SFDX plugin for Angular apps deployment on Salesforce",
-  "version": "0.2.0-beta.4",
+  "version": "0.2.0-beta.6",
   "author": "Roman Zhigalov <rzhigalov.dev@gmail.com>",
   "bugs": "https://github.com/rzhigalov/sfdx-ngx-plugin/issues",
   "dependencies": {
