@@ -225,6 +225,10 @@ $ sfdx ngx:build
     const staticResourceUrl = composeStaticResourceUrl(staticResourceName);
     const html = await fs.readFile(vfPagePath, 'utf8');
 
+    if (!vfTransform.checkBuildValidity(html)) {
+      throw new SfdxError(messages.getMessage('errorVfTransformFailed'));
+    }
+
     this.ux.setSpinnerStatus('Transforming html to Visualforce');
     vfPage = vfTransform.wrapIntoVfPage(html, vfTemplate);
     this.ux.setSpinnerStatus('Sanitizing tags');

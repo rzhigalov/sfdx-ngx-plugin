@@ -11,6 +11,10 @@ import {
   VF_TEMPLATE_CONTENT_TOKEN
 } from './tokens';
 
+export const checkBuildValidity = (html: string): boolean => {
+  return html.indexOf(SFDC_DEPLOY_TOKEN) !== -1;
+}
+
 export const createLegacyScriptsInitializer = (html: string): string => {
   // Collect es5 src references
   const nomoduleScripts = [];
